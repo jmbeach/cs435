@@ -1,0 +1,30 @@
+{
+  "name": "template",
+  "version": "0.0.0",
+  "authors": [
+    "jared.beach"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.2.0",
+    "jquery-ui": "~1.11.4",
+    "bootstrap": "~3.3.5",
+    "angular-bootstrap": "~0.13.2",
+    "angular": "~1.4.3",
+    "jquery-color": "~2.1.2",
+    "angular-route": "~1.4.3",
+    "angular-animate": "~1.4.3",
+    "threejs": "*",
+    "ui-router": "~0.2.15",
+    "toastr": "~2.1.2",
+    "angular-recaptcha": "~2.2.5",
+    "express": "~4.13.3",
+    "gl-matrix": "toji/gl-matrix#~2.3.1"
+  }
+}
