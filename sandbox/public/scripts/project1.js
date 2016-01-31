@@ -182,6 +182,7 @@ function Project1(canvasId) {
   }
 
   var setup = function() {
+    self.lines = [];
     mat4.frustum(-ratio, // left
       ratio, // right
       -1.0, // bottom
