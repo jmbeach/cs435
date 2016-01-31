@@ -1,0 +1,29 @@
+<script type="text/javascript" src="/scripts/extendUtils.js"></script>
+<div class="col-md-12">
+	<div class="row">
+		<div class="col-md-6">
+			<label>Set recursion depth: </label>
+			<input id="spinnerRecursionDepth" name="recursionDepth" value="0" style="width:20px"/>
+			<script>$("#spinnerRecursionDepth").spinner()</script>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<canvas id="mycanvas" width="500px" height="500px"></canvas>
+		</div>
+	</div>
+	<script data-src="scripts/shaders/vertex.js"  data-name="particles" type="x-shader/x-vertex" ></script>
+	<script data-name="particles" data-src="scripts/shaders/fragment.js" type="x-shader/x-fragment"> </script>
+	<script type="text/javascript">
+		var project1 = new Project1("mycanvas");
+		$(".ui-spinner-button").click(function() {
+			$(this).siblings('input').change();
+		});
+		$("#spinnerRecursionDepth").change(function() {
+			var newValue =parseInt($(this).val());
+			console.log(newValue);
+			project1.transformCount = newValue;
+			project1.performTransformation();
+		});
+	</script>
+</div>
