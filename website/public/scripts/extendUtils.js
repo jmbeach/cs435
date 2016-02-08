@@ -1,28 +1,16 @@
 // Helper function to load a shader
-function loadShader(gl,sourceScriptId, type)
+function loadShader(gl,text, type)
 {
 	var shaderHandle = gl.createShader(type);
 	var error;
-
 	if (shaderHandle != 0)
 	{
-		// Read the embedded shader from the document.
-		var shaderSource = document.getElementById(sourceScriptId);
-
-		if (!shaderSource)
-		{
-			throw("Error: shader script '" + sourceScriptId + "' not found");
-		}
-
 		// Pass in the shader source.
-		gl.shaderSource(shaderHandle, shaderSource.text);
-
+		gl.shaderSource(shaderHandle, text);
 		// Compile the shader.
 		gl.compileShader(shaderHandle);
-
 		// Get the compilation status.
 		var compiled = gl.getShaderParameter(shaderHandle, gl.COMPILE_STATUS);
-
 		// If the compilation failed, delete the shader.
 		if (!compiled)
 		{
@@ -31,12 +19,10 @@ function loadShader(gl,sourceScriptId, type)
 			shaderHandle = 0;
 		}
 	}
-
-	if (shaderHandle == 0)
+	else
 	{
 		throw("Error creating shader " + sourceScriptId + ": " + error);
 	}
-
 	return shaderHandle;
 }
 // Helper function to link a program

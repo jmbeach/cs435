@@ -1,0 +1,67 @@
+
+pages 100-101
+
+The rotating square examples for Chapter 3 were all updated to correct two errors that cancelled each other out. The first error was the order of vertices. As in the original code, the first triangle in the triangle strip was defined in clockwise manner which in WebGL defines a back face, which leads to all the triangles in the strip being back facing. This would cause a problem if culled is turned on. Second, the rotation had the x and y reversed making it a concatenation of a reflection and a rotation, which cancelled out the first error. All three examples have been fixed. Thanks to Ken Lodge ( Charles Sturt University, Australia) for pointing out these errors.
+
+The correct code is
+
+    var vertices = [
+        vec2(  0,  1 ),
+        vec2(  -1,  0 ),
+        vec2( 1,  0 ),
+        vec2(  0, -1 )
+    ];
+
+and
+
+    gl_Position.x = -s * vPosition.y + c * vPosition.x;
+    gl_Position.y =  s * vPosition.x + c * vPosition.y;
+
+page 102: The code in the middle of the page is not supposed to be recursive. Remove the line
+
+render();
+
+from the function render. The next example on page 103 is recursive.
+
+page 105: Sentence before code at bottom. Change "setInterval" to "setTimeout"
+`
+page 126: the variable t1 should be a global
+
+page 164: third comment on first code segment should read //create vec3 c by copying vec3 c
+
+page 194: var e = scalem(scaleVector)
+
+page 195: First paragraph: remove "sets the matrix mode" (remnent of the fifth edition)
+          The example referred to is from 4.10 not 4.11
+
+		  Change signs on thetaX and thetaY
+
+page 195: the three lines of code for ctm should be:
+
+ctm = translate(d);
+ctm = mult(ctm, R);
+ctm = mult(ctm, translate(negate(d)));
+
+page 458:
+
+In figure(): change modelviewMatric to modelViewMatrix
+
+In drawing the lower left arm, remove the pop() at beginning
+
+page 469:
+
+change torse.add(leftUpperLag)| to torse.add(leftUpperLeg);
+
+page 544:
+
+change
+
+d^2 p/dudv (0,0) = 9 (p00 - p01 + p10 - p11
+
+to
+
+d^2 p/dudv (0,0) = 9 (p00 - p01 - p10 + p11
+
+page 595: 
+
+equation for diagonal matrix R: chage a_{ij} to r_{ij}

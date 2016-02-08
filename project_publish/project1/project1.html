@@ -1,0 +1,52 @@
+<script type="text/javascript" src="./common/jquery.min.js"></script>
+<script type="text/javascript" src="./common/jquery-ui.min.js"></script>
+<script type="text/javascript" src="./common/gl-matrix-min.js"></script>
+<script type="text/javascript" src="./common/webgl-utils.js"></script>
+<script type="text/javascript" src="./common/ShaderLoader.min.js"></script>
+<script type="text/javascript" src="./common/extendUtils.js"></script>
+<script type="text/javascript" src="./project1.js"></script>
+<div class="col-md-12">
+	<div class="row">
+		<div class="col-md-6">
+			<label>Set recursion depth: </label>
+			<input id="spinnerRecursionDepth" name="recursionDepth" value="0" style="width:20px"/>
+			<script>$("#spinnerRecursionDepth").spinner()</script>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-6">
+			<canvas id="mycanvas" width="500px" height="500px"></canvas>
+			<script id="vertex_shader" type="x-shader/x-vertex">
+				uniform mat4 u_MVPMatrix;
+				attribute vec4 a_Position;
+				attribute vec4 a_Color;
+				varying vec4 v_Color;
+				void main()
+				{
+				    v_Color = a_Color;
+					gl_Position = u_MVPMatrix * a_Position;
+				}
+			</script>
+			<script id="fragment_shader" type="x-shader/x-fragment">
+				precision mediump float;
+				varying vec4 v_Color;
+				void main()
+				{
+			    gl_FragColor = v_Color;
+				}
+			</script>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var project1 = new Project1("mycanvas");
+		$(".ui-spinner-button").click(function() {
+			$(this).siblings('input').change();
+		});
+		$("#spinnerRecursionDepth").change(function() {
+			var newValue =parseInt($(this).val());
+			console.log(newValue);
+			project1.transformCount = newValue;
+			project1.performTransformation();
+		});
+	</script>
+</div>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<script id="vertex-shader1" type="x-shader/x-vertex">
+
+attribute vec2 vPosition1;
+attribute vec2 vTexCoord;
+
+varying vec2 fTexCoord;
+
+void main()
+{
+    gl_Position = vec4(vPosition1, 0.0, 1.0);
+    fTexCoord = vTexCoord;
+}
+</script>
+
+<script id="fragment-shader1" type="x-shader/x-fragment">
+
+precision highp float;
+
+uniform sampler2D texture;
+uniform float ddd;
+uniform float s;
+
+varying vec2 fTexCoord;
+
+void main()
+{
+    float x = fTexCoord.x;
+    float y = fTexCoord.y;
+
+    float d = 1.0/64.0;
+    float ss = 1.0/s;
+
+    if((x<1.0/1024.0)||(x>1023.0/1024.0)||(y<1.0/1024.0)||(y>1023.0/1024.0))
+      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    else
+    gl_FragColor = texture2D(texture, vec2(x,y))+
+                   ss*((texture2D( texture, vec2(x+d, y))
+                   +texture2D( texture, vec2(x, y+d))
+                   +texture2D( texture, vec2(x-d, y))
+                   +texture2D( texture, vec2(x, y-d)))
+                   -4.0*texture2D(texture, vec2(x,y)));
+
+}
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="pde3.js"></script>
+
+
+<body>
+
+  <div>
+  speed 3 <input id="slider" type="range"
+   min="3" max="5" step="0.1" value="4" />
+  5
+  </div>
+
+<canvas id="gl-canvas" width="1024" height="1024">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+</body>
+</html>

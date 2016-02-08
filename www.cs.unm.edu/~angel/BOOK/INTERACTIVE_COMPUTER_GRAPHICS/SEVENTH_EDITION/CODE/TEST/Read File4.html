@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+    <title>Read File 4</title>
+    <h3>Read a text file.<br>
+    Split the file into an array of text lines. <br>
+    Split the text lines into arrays of integers.<br>
+    Plot the 2 sets of points from the 2 lines of the file.</h3>
+</head>
+<body>
+<canvas id="myCanvas" width="500" height="500" style="border:6px solid #ff0000;"></canvas>
+<input type="file" id="fileinput" />
+<script type="text/javascript">
+var c = document.getElementById("myCanvas"); // I think these context statements need to be here
+var ctx = c.getContext("2d");
+ctx.beginPath();
+
+  function readSingleFile(evt) {
+    //Retrieve the first (and only!) File from the FileList object
+    var f = evt.target.files[0]; 
+
+    if (f) {
+      var r = new FileReader();
+      r.onload = function(e) { 
+	      var contents = e.target.result;
+        var lines = contents.split('\n', 2);
+/*        alert( "Here's a breakdown of a 2-line test file details: \n" 
+              + "the whole file: " + contents +"\n"
+              +"name: " + f.name + "\n"
+              +"type: " + f.type + "\n"
+              +"size: " + f.size + " bytes\n"
+              + "lines (notice the comma at the split between lines) =  " + lines + "\n" 
+              + "lines[0] = " + lines[0] + "\n"
+              + "lines[1] = " + lines[1] );*/
+       /* document.write( "Here's a breakdown of a 2-line test file details: "  +"<br>"
+              + "the whole file: " + contents +"<br>"
+              +"name: " + f.name + "<br>"
+              +"type: " + f.type + "<br>"
+              +"size: " + f.size + " bytes" + "<br>"
+              + "lines (notice the comma at the split between lines) =  " + lines + "<br>" 
+              + "lines[0] = " + lines[0] + "<br>"
+              + "lines[1] = " + lines[1] );*/
+        var horizon1 = lines[0].split(' ').map(Number).filter(Boolean);
+        var horizon2 = lines[1].split(' ').map(Number).filter(Boolean);
+        
+ /*       document.write("here's horizon1 data: " + horizon1 +
+        "<br>here's horizon2 data: " + horizon2 + "<br>" +
+        "<h2>So let's plot them...</h2>"
+        ); // "\n" doesn't work. use <br>*/
+ // declare the point arrays
+        var h1col = new Array(horizon1.length/2);
+        var h1row = new Array(horizon1.length/2);
+        var h2col = new Array(horizon2.length/2);
+        var h2row = new Array(horizon2.length/2);
+        // fill the arrays
+        for(var i = 0; i < horizon1.length/2; i ++){
+          h1col[i] = horizon1[2*i];       // h1col[0] = horizon1[1], h1col[1] = horizon1[3]...
+          console.log("h1col[" + i + "] = " + h1col[i]);
+          h1row[i] = horizon1[2*i + 1];   // h1row[0] = horizon1[2], h1row[1] = horizon1[5]...
+          console.log("h1row[" + i + "] = " + h1row[i]);
+        }
+        for(var j = 0; j < horizon2.length/2; j++){
+          h2col[j] = horizon2[2*j];       // h2ol[0] = horizon2[1], h2col[1] = horizon2[3]...
+          console.log("h2col[" + j + "] = " + h2col[j]);
+          h2row[j] = horizon2[2*j + 1];   // h2row[0] = horizon2[2], h2row[1] = horizon2[5]...
+          console.log("h2row[" + j + "] = " + h2row[j]);
+        }
+
+console.log(h1col.length + " " + h1row.length);
+ctx.moveTo(h1col[0],h1row[0]); // plot from point 0 to point i. i remains at the last i value so we r connecting the first and last point.
+console.log(h1col[0],h1row[0]);
+ctx.lineTo(30*h1col.length, 30*h1row.length);
+console.log(h1col[length], h1row.length); // [length] = .length WOW!
+ctx.stroke();
+      }
+      r.readAsText(f);
+    } else { 
+      alert("Failed to load file");
+    }
+  }
+
+  document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+</script>
+</body>
+    </html>

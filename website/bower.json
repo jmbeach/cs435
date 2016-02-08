@@ -25,6 +25,8 @@
     "toastr": "~2.1.2",
     "angular-recaptcha": "~2.2.5",
     "express": "~4.13.3",
-    "gl-matrix": "toji/gl-matrix#~2.3.1"
+    "gl-matrix": "toji/gl-matrix#~2.3.1",
+    "webgl-utils.js": "kmindi/webgl-utils.js",
+    "webgl-shader-loader-js": "codecruzer/webgl-shader-loader-js"
   }
 }
