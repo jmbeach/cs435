@@ -109,15 +109,94 @@ function Parallelogram(options) {
   var self = this;
   self.size = options.size;
   self.vertices = [
-    vec2(-0.6*self.size,1.0*self.size),
-    vec2(-1.0*self.size,-1.0*self.size),
+    vec2(-1.0*self.size,1.0*self.size),
     vec2(1.0*self.size,1.0*self.size),
-    vec2(0.6*self.size,-1.0*self.size),
+    vec2(1*self.size,-1.0*self.size),
+    vec2(3*self.size,-1.0*self.size),
   ]
   self.loadIntoBuffer = function(gl) {
     var bufferId = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.bufferData(gl.ARRAY_BUFFER,flatten(self.vertices),gl.STATIC_DRAW);
+  }
+  var minPoint = function(i) {
+    var min = self.vertices[0][i];
+    if (self.vertices[1][i] < min) {
+      min = self.vertices[1][i];
+    }
+    if (self.vertices[2][i] < min) {
+      min = self.vertices[2][i];
+    }
+    if (self.vertices[3][i] < min) {
+      min = self.vertices[3][i];
+    }
+    return min;
+  }
+  var maxPoint = function(i) {
+    var max = self.vertices[0][i];
+    if (self.vertices[1][i] > max) {
+      max = self.vertices[1][i];
+    }
+    if (self.vertices[2][i] > max) {
+      max = self.vertices[2][i];
+    }
+    if (self.vertices[3][i] > max) {
+      max = self.vertices[3][i];
+    }
+    return max;
+  }
+  self.center = function() {
+    var y = (maxPoint(1) + minPoint(1))/2;
+    var x = (maxPoint(0)+ minPoint(0))/2;
+    return vec2(x,y);
+  }
+  self.isInside = function(x,y) {
+    // if it is not too far left
+    if (x >= minPoint(0)) {
+      // if it is not too far right
+      if (x <= maxPoint(0)) {
+        // if it is not too high
+        if (y >= minPoint(1)) {
+          // if it is not too low
+          if (y <= maxPoint(1)) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+  self.centerAtPoint= function (x,y) {
+    // console.log(x + " and " +y)
+    var point = vec2(x,y);
+    var aToB = new Vector2(self.center(),point);
+    self.vertices[0][0] += aToB.x;
+    self.vertices[1][0] += aToB.x;
+    self.vertices[2][0] += aToB.x;
+    self.vertices[3][0] += aToB.x;
+    self.vertices[0][1] += aToB.y;
+    self.vertices[1][1] += aToB.y;
+    self.vertices[2][1] += aToB.y;
+    self.vertices[3][1] += aToB.y;
+  }
+  var rotateVertex = function(vertex, radians) {
+    var tempX = vertex[0];
+    var tempY = vertex[1];
+    vertex[0] = tempX*Math.cos(radians)-tempY*Math.sin(radians);
+    vertex[1] = tempY*Math.cos(radians)+tempX*Math.sin(radians);
+  }
+  self.rotate = function(degrees) {
+    var rads = (Math.PI/180)*degrees;
+    // save center
+    var currentCenter = self.center();
+    // move to origin
+    self.centerAtPoint(0,0);
+    // rotate
+    rotateVertex(self.vertices[0],rads);
+    rotateVertex(self.vertices[1],rads);
+    rotateVertex(self.vertices[2],rads);
+    rotateVertex(self.vertices[3],rads);
+    // move back
+    self.centerAtPoint(currentCenter[0],currentCenter[1]);
   }
 }
 function RightTriangle(options) {
@@ -225,6 +304,11 @@ function Tangram() {
     self.smallTriangle2.rotate(-45);
     self.smallTriangle2.centerAtPoint(-0.104,-0.284);
     self.parallelogram = new Parallelogram({size:0.25});
+    self.parallelogram.rotate(-45);
+    self.parallelogram.centerAtPoint(0.26,-0.472);
+    self.mediumTriangle = new RightTriangle({size:0.350})
+    self.mediumTriangle.rotate(180);
+    self.mediumTriangle.centerAtPoint(0.26,0.252);
     // associate shader variables with buffer
     thetaLoc = gl.getUniformLocation(program,"theta");
     vPosition = gl.getAttribLocation(program, "vPosition");
@@ -272,6 +356,12 @@ function Tangram() {
     else if (self.smallTriangle2.isInside(point[0],point[1])) {
       shapeToRotate = self.smallTriangle2;
     }
+    else if (self.parallelogram.isInside(point[0],point[1])) {
+      shapeToRotate = self.parallelogram;
+    }
+    else if (self.mediumTriangle.isInside(point[0],point[1])) {
+      shapeToRotate = self.mediumTriangle;
+    }
     if (!shapeToRotate) {
       return;
     }
@@ -305,6 +395,12 @@ function Tangram() {
     else if (self.smallTriangle2.isInside(point[0],point[1])) {
       self.dragingShape = self.smallTriangle2;
     }
+    else if (self.parallelogram.isInside(point[0],point[1])) {
+      self.dragingShape = self.parallelogram;
+    }
+    else if (self.mediumTriangle.isInside(point[0],point[1])) {
+      self.dragingShape = self.mediumTriangle;
+    }
   }
   var onMouseUp=function() {
     // on mouse up, dragging shape becomes null
@@ -335,6 +431,9 @@ function Tangram() {
     self.parallelogram.loadIntoBuffer(gl);
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    self.mediumTriangle.loadIntoBuffer(gl);
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,3);
     // gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
     // gl.drawArrays(gl.TRIANGLE_STRIP,0,3);
     // call render again
