@@ -14,11 +14,57 @@ function Square(options) {
     gl.bufferData(gl.ARRAY_BUFFER,flatten(self.vertices),gl.STATIC_DRAW);
   }
   self.centerAtPoint= function (x,y) {
-    console.log(x + " and " +y)
+    // console.log(x + " and " +y)
     self.vertices[0][0] = -1.0 * self.size + x;
     self.vertices[1][0] = -1.0 * self.size + x;
     self.vertices[2][0] = 1.0 * self.size + x;
     self.vertices[3][0] = 1.0 * self.size + x;
+    self.vertices[0][1] = 1.0 * self.size + y;
+    self.vertices[1][1] = -1.0 * self.size + y;
+    self.vertices[2][1] = 1.0 * self.size + y;
+    self.vertices[3][1] = -1.0 * self.size + y;
+  }
+  var minPoint = function(i) {
+    var min = self.vertices[0][i];
+    if (self.vertices[1][i] < min) {
+      min = self.vertices[1][i];
+    }
+    if (self.vertices[2][i] < min) {
+      min = self.vertices[2][i];
+    }
+    if (self.vertices[3][i] < min) {
+      min = self.vertices[3][i];
+    }
+    return min;
+  }
+  var maxPoint = function(i) {
+    var max = self.vertices[0][i];
+    if (self.vertices[1][i] > max) {
+      max = self.vertices[1][i];
+    }
+    if (self.vertices[2][i] > max) {
+      max = self.vertices[2][i];
+    }
+    if (self.vertices[3][i] > max) {
+      max = self.vertices[3][i];
+    }
+    return max;
+  }
+  self.isInside = function(x,y) {
+    // if it is not too far left
+    if (x >= minPoint(0)) {
+      // if it is not too far right
+      if (x <= maxPoint(0)) {
+        // if it is not too high
+        if (y >= minPoint(1)) {
+          // if it is not too low
+          if (y <= maxPoint(1)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 }
 function RightTriangle(options) {
@@ -33,6 +79,31 @@ function RightTriangle(options) {
     var bufferId = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.bufferData(gl.ARRAY_BUFFER,flatten(self.vertices),gl.STATIC_DRAW);
+  }
+  self.centerAtPoint = function(x,y) {
+    self.vertices[0][0] = -1.0 * self.size + (x+self.size/2);
+    self.vertices[1][0] = -1.0 * self.size + (x+self.size/2);
+    self.vertices[2][0] = 1.0 * self.size + (x+self.size/2);
+    self.vertices[0][1] = -1.0 * self.size + (y + self.size/2);
+    self.vertices[1][1] = 1.0 * self.size + (y+self.size/2);
+    self.vertices[2][1] = -1.0 * self.size + (y+self.size/2);
+  }
+  // Inspired by answer http://stackoverflow.com/questions/2049582/how-to-determine-a-point-in-a-2d-triangle
+  self.isInside = function(x,y) {
+    var toTest = vec2(x,y);
+    var distanceX = toTest[0]-self.vertices[2][0];
+    var distanceY = toTest[1]-self.vertices[2][1];
+    var distanceX2to1 = self.vertices[2][0] - self.vertices[1][0];
+    var distanceY1to2 = self.vertices[1][1]-self.vertices[2][1];
+    var distance = distanceY1to2 * (self.vertices[0][0]-self.vertices[2][0])+
+      distanceX2to1*(self.vertices[0][1]-self.vertices[2][1]);
+    var sum = distanceY1to2*distanceX+distanceX2to1*distanceY;
+    var total = (self.vertices[2][1]-self.vertices[0][1])*distanceX+
+      (self.vertices[0][0]-self.vertices[2][0])*distanceY;
+    if (distance < 0){
+      return sum <= 0 && total <= 0 && sum+total >= distance;
+    }
+    return sum>=0 && total >=0 && sum+total<=distance;
   }
 }
 function Tangram() {
@@ -63,17 +134,27 @@ function Tangram() {
   setup();
   var mousePositionToPoint = function(x,y) {
     return vec2((x-(canvas.width/2))/(canvas.width/2),
-      (y-(canvas.height/2))/(canvas.height/2));
+      -(y-(canvas.height/2))/(canvas.height/2));
   }
   var onMouseMove =function(event) {
     // console.log(mousePositionToPoint(event.offsetX,event.offsetY));
     var point = mousePositionToPoint(event.offsetX,event.offsetY);
-    console.log(point);
-    self.square.centerAtPoint(point[0],point[1]);
+    // console.log(point);
+    // self.square.centerAtPoint(point[0],point[1]);
+    // self.largeTriangle1.centerAtPoint(point[0],point[1])
   }
   $(canvas).mousemove(function(event) {
     onMouseMove(event);
   });
+  $(canvas).mousedown(function(event) {
+    onMouseDown(event);
+  })
+  var onMouseDown = function(event) {
+    var point = mousePositionToPoint(event.offsetX,event.offsetY);
+    console.log(point);
+    // console.log(self.square.isInside(point[0],point[1]));
+    console.log(self.largeTriangle1.isInside(point[0],point[1]));
+  }
   // called every frame
   var render = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
