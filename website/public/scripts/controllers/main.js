@@ -48,6 +48,17 @@ master.config(['$urlMatcherFactoryProvider', '$routeProvider', '$locationProvide
             }
           }
         )
+        .state("Limited Movement", {
+          url: "/limited",
+          views: {
+            "master": {
+              templateUrl: "views/limited_movement.html",
+              controller:"main",
+              controllerAs:"main"
+            }
+          }
+        })
+
           // #endregion
           // #region OTHER_STATE
         //.state(
