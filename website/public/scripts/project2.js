@@ -27,7 +27,7 @@ function Square(options) {
   self.centerAtPoint= function (x,y) {
     // console.log(x + " and " +y)
     var point = vec2(x,y);
-    var aToB = new Vector2(center(),point);
+    var aToB = new Vector2(self.center(),point);
     self.vertices[0][0] += aToB.x;
     self.vertices[1][0] += aToB.x;
     self.vertices[2][0] += aToB.x;
@@ -63,7 +63,7 @@ function Square(options) {
     }
     return max;
   }
-  var center = function() {
+  self.center = function() {
     var y = (maxPoint(1) + minPoint(1))/2;
     var x = (maxPoint(0)+ minPoint(0))/2;
     return vec2(x,y);
@@ -84,22 +84,23 @@ function Square(options) {
     }
     return false;
   }
-  var rotateVertex = function(vertex, degrees) {
+  var rotateVertex = function(vertex, radians) {
     var tempX = vertex[0];
     var tempY = vertex[1];
-    vertex[0] = tempX*Math.cos(degrees)-tempY*Math.sin(degrees);
-    vertex[1] = tempY*Math.cos(degrees)+tempX*Math.sin(degrees);
+    vertex[0] = tempX*Math.cos(radians)-tempY*Math.sin(radians);
+    vertex[1] = tempY*Math.cos(radians)+tempX*Math.sin(radians);
   }
   self.rotate = function(degrees) {
+    var rads = (Math.PI/180)*degrees;
     // save center
-    var currentCenter = center();
+    var currentCenter = self.center();
     // move to origin
     self.centerAtPoint(0,0);
     // rotate
-    rotateVertex(self.vertices[0],degrees);
-    rotateVertex(self.vertices[1],degrees);
-    rotateVertex(self.vertices[2],degrees);
-    rotateVertex(self.vertices[3],degrees);
+    rotateVertex(self.vertices[0],rads);
+    rotateVertex(self.vertices[1],rads);
+    rotateVertex(self.vertices[2],rads);
+    rotateVertex(self.vertices[3],rads);
     // move back
     self.centerAtPoint(currentCenter[0],currentCenter[1]);
   }
@@ -117,13 +118,25 @@ function RightTriangle(options) {
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.bufferData(gl.ARRAY_BUFFER,flatten(self.vertices),gl.STATIC_DRAW);
   }
+  self.center = function() {
+    var cornerToEnd = new Vector2(self.vertices[1],self.vertices[2]);
+    var pointBetweenCornerAndEnd = vec2(self.vertices[1][0]+cornerToEnd.x/2,self.vertices[1][1]+cornerToEnd.y/2);
+    var toOtherPoint = new Vector2(pointBetweenCornerAndEnd,self.vertices[0]);
+    var actualCenter = vec2(
+      pointBetweenCornerAndEnd[0]+toOtherPoint.x/2,
+      pointBetweenCornerAndEnd[1]+toOtherPoint.y/2);
+    return actualCenter;
+    // return pointBetweenCornerAndEnd;
+  }
   self.centerAtPoint = function(x,y) {
-    self.vertices[0][0] = -1.0 * self.size + (x+self.size/2);
-    self.vertices[1][0] = -1.0 * self.size + (x+self.size/2);
-    self.vertices[2][0] = 1.0 * self.size + (x+self.size/2);
-    self.vertices[0][1] = -1.0 * self.size + (y + self.size/2);
-    self.vertices[1][1] = 1.0 * self.size + (y+self.size/2);
-    self.vertices[2][1] = -1.0 * self.size + (y+self.size/2);
+    var point = vec2(x,y);
+    var aToB = new Vector2(self.center(),point);
+    self.vertices[0][0] += aToB.x;
+    self.vertices[1][0] += aToB.x;
+    self.vertices[2][0] += aToB.x;
+    self.vertices[0][1] += aToB.y;
+    self.vertices[1][1] += aToB.y;
+    self.vertices[2][1] += aToB.y;
   }
   // Inspired by answer http://stackoverflow.com/questions/2049582/how-to-determine-a-point-in-a-2d-triangle
   self.isInside = function(x,y) {
@@ -142,16 +155,24 @@ function RightTriangle(options) {
     }
     return sum>=0 && total >=0 && sum+total<=distance;
   }
-  var rotateVertex = function(vertex, degrees) {
+  var rotateVertex = function(vertex, rads) {
     var tempX = vertex[0];
     var tempY = vertex[1];
-    vertex[0] = tempX*Math.cos(degrees)-tempY*Math.sin(degrees);
-    vertex[1] = tempY*Math.cos(degrees)+tempX*Math.sin(degrees);
+    vertex[0] = tempX*Math.cos(rads)-tempY*Math.sin(rads);
+    vertex[1] = tempY*Math.cos(rads)+tempX*Math.sin(rads);
   }
   self.rotate = function(degrees) {
-    rotateVertex(self.vertices[0],degrees);
-    rotateVertex(self.vertices[1],degrees);
-    rotateVertex(self.vertices[2],degrees);
+    var rads = degrees * (Math.PI/180);
+    // save center
+    var currentCenter = self.center();
+    // move to origin
+    self.centerAtPoint(0,0);
+    // rotate
+    rotateVertex(self.vertices[0],rads);
+    rotateVertex(self.vertices[1],rads);
+    rotateVertex(self.vertices[2],rads);
+    // move back
+    self.centerAtPoint(currentCenter[0],currentCenter[1]);
   }
 }
 function Tangram() {
@@ -174,7 +195,14 @@ function Tangram() {
     gl.useProgram(program);
     // load a shape into buffer
     self.largeTriangle1 = new RightTriangle({size:0.5});
+    self.largeTriangle1.rotate(-135);
+    self.largeTriangle1.centerAtPoint(-0.288,-0.64);
+    self.largeTriangle2 = new RightTriangle({size:0.5});
+    self.largeTriangle2.rotate(135);
+    self.largeTriangle2.centerAtPoint(-0.644,-0.28);
     self.square = new Square({size:0.25});
+    self.square.rotate(45);
+    self.square.centerAtPoint(-0.288,0.08)
     // associate shader variables with buffer
     thetaLoc = gl.getUniformLocation(program,"theta");
     vPosition = gl.getAttribLocation(program, "vPosition");
@@ -210,9 +238,21 @@ function Tangram() {
     if(self.square.isInside(point[0],point[1])) {
         shapeToRotate = self.square;
     }
+    else if (self.largeTriangle1.isInside(point[0],point[1])) {
+        shapeToRotate = self.largeTriangle1;
+    }
+    else if (self.largeTriangle2.isInside(point[0],point[1])) {
+      shapeToRotate = self.largeTriangle2;
+    }
+    if (!shapeToRotate) {
+      return;
+    }
     // rotate counter-clockwise 5 degrees
     if (event.shiftKey) {
       shapeToRotate.rotate(5);
+    }
+    else if(event.ctrlKey || event.altKey) {
+      shapeToRotate.rotate(-5);
     }
   });
   var onMouseDown = function(event) {
@@ -228,6 +268,9 @@ function Tangram() {
     else if (self.largeTriangle1.isInside(point[0],point[1])) {
       self.dragingShape = self.largeTriangle1;
     }
+    else if (self.largeTriangle2.isInside(point[0],point[1])) {
+      self.dragingShape = self.largeTriangle2;
+    }
   }
   var onMouseUp=function() {
     // on mouse up, dragging shape becomes null
@@ -241,6 +284,9 @@ function Tangram() {
     // self.square.rotate(theta);
     // gl.uniform1f(thetaLoc,theta);
     self.largeTriangle1.loadIntoBuffer(gl);
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,3);
+    self.largeTriangle2.loadIntoBuffer(gl);
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP,0,3);
     self.square.loadIntoBuffer(gl);
