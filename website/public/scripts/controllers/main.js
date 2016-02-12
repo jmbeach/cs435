@@ -36,6 +36,18 @@ master.config(['$urlMatcherFactoryProvider', '$routeProvider', '$locationProvide
             }
           }
         )
+        .state(
+          "Project2", {
+            url: "/project2",
+            views: {
+              "master": {
+                templateUrl: 'views/project2.html',
+                controller: "main",
+                controllerAs: "main"
+              }
+            }
+          }
+        )
           // #endregion
           // #region OTHER_STATE
         //.state(

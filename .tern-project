@@ -2,6 +2,6 @@
   "ecmaVersion": 6,
   "libs": [],
   "loadEagerly": [
-    "website/scripts/common/*"
+    "website/public/scripts/common/*"
   ]
 }
