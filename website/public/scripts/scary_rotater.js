@@ -1,14 +1,3 @@
-function Vector2(point1,point2) {
-  var self = this;
-  self.x = point2[0] - point1[0];
-  self.y = point2[1] - point1[1];
-  self.magnitude = function() {
-    return Math.sqrt(self.x*self.x+self.y*self.y);
-  }
-  self.direction = function() {
-    return vec2(self.x/self.magnitude(),self.y/self.magnitude());
-  }
-}
 function Square(options) {
   var self = this;
   self.size = options.size;
@@ -26,16 +15,14 @@ function Square(options) {
   }
   self.centerAtPoint= function (x,y) {
     // console.log(x + " and " +y)
-    var point = vec2(x,y);
-    var aToB = new Vector2(center(),point);
-    self.vertices[0][0] += aToB.x;
-    self.vertices[1][0] += aToB.x;
-    self.vertices[2][0] += aToB.x;
-    self.vertices[3][0] += aToB.x;
-    self.vertices[0][1] += aToB.y;
-    self.vertices[1][1] += aToB.y;
-    self.vertices[2][1] += aToB.y;
-    self.vertices[3][1] += aToB.y;
+    self.vertices[0][0] = -1.0 * self.size + x;
+    self.vertices[1][0] = -1.0 * self.size + x;
+    self.vertices[2][0] = 1.0 * self.size + x;
+    self.vertices[3][0] = 1.0 * self.size + x;
+    self.vertices[0][1] = 1.0 * self.size + y;
+    self.vertices[1][1] = -1.0 * self.size + y;
+    self.vertices[2][1] = 1.0 * self.size + y;
+    self.vertices[3][1] = -1.0 * self.size + y;
   }
   var minPoint = function(i) {
     var min = self.vertices[0][i];
@@ -63,11 +50,6 @@ function Square(options) {
     }
     return max;
   }
-  var center = function() {
-    var y = (maxPoint(1) + minPoint(1))/2;
-    var x = (maxPoint(0)+ minPoint(0))/2;
-    return vec2(x,y);
-  }
   self.isInside = function(x,y) {
     // if it is not too far left
     if (x >= minPoint(0)) {
@@ -83,25 +65,6 @@ function Square(options) {
       }
     }
     return false;
-  }
-  var rotateVertex = function(vertex, degrees) {
-    var tempX = vertex[0];
-    var tempY = vertex[1];
-    vertex[0] = tempX*Math.cos(degrees)-tempY*Math.sin(degrees);
-    vertex[1] = tempY*Math.cos(degrees)+tempX*Math.sin(degrees);
-  }
-  self.rotate = function(degrees) {
-    // save center
-    var currentCenter = center();
-    // move to origin
-    self.centerAtPoint(0,0);
-    // rotate
-    rotateVertex(self.vertices[0],degrees);
-    rotateVertex(self.vertices[1],degrees);
-    rotateVertex(self.vertices[2],degrees);
-    rotateVertex(self.vertices[3],degrees);
-    // move back
-    self.centerAtPoint(currentCenter[0],currentCenter[1]);
   }
 }
 function RightTriangle(options) {
@@ -204,17 +167,6 @@ function Tangram() {
   $(canvas).mouseup(function(event) {
     onMouseUp();
   });
-  $(canvas).click(function(event) {
-    var point = mousePositionToPoint(event.offsetX,event.offsetY);
-    var shapeToRotate = null;
-    if(self.square.isInside(point[0],point[1])) {
-        shapeToRotate = self.square;
-    }
-    // rotate counter-clockwise 5 degrees
-    if (event.shiftKey) {
-      shapeToRotate.rotate(5);
-    }
-  });
   var onMouseDown = function(event) {
     var point = mousePositionToPoint(event.offsetX,event.offsetY);
     // console.log(point);
@@ -236,9 +188,8 @@ function Tangram() {
   // called every frame
   var render = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
-    theta+=0.001;
-    // self.largeTriangle1.rotate(theta);
-    // self.square.rotate(theta);
+    theta+=0.0001;
+    self.largeTriangle1.rotate(theta);
     // gl.uniform1f(thetaLoc,theta);
     self.largeTriangle1.loadIntoBuffer(gl);
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);

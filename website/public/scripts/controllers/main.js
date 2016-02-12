@@ -58,6 +58,16 @@ master.config(['$urlMatcherFactoryProvider', '$routeProvider', '$locationProvide
             }
           }
         })
+        .state("Scary Rotater", {
+          url:"/scaryrotation",
+          views: {
+            "master": {
+              templateUrl: "views/scary_rotater.html",
+              controller:"main",
+              controllerAs:"main"
+            }
+          }
+        })
 
           // #endregion
           // #region OTHER_STATE
