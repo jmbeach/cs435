@@ -19,6 +19,11 @@ function Square(options) {
     self.vertices[1][0] = -1.0 * self.size + x;
     self.vertices[2][0] = 1.0 * self.size + x;
     self.vertices[3][0] = 1.0 * self.size + x;
+    self.vertices[0][1] = 1.0 * self.size + y;
+    self.vertices[1][1] = -1.0 * self.size + y;
+    self.vertices[2][1] = 1.0 * self.size + y;
+    self.vertices[3][1] = -1.0 * self.size + y;
+
   }
 }
 function RightTriangle(options) {
