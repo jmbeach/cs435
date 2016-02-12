@@ -105,6 +105,17 @@ function RightTriangle(options) {
     }
     return sum>=0 && total >=0 && sum+total<=distance;
   }
+  var rotateVertex = function(vertex, degrees) {
+    var tempX = vertex[0];
+    var tempY = vertex[1];
+    vertex[0] = tempX*Math.cos(degrees)-tempY*Math.sin(degrees);
+    vertex[1] = tempY*Math.cos(degrees)+tempX*Math.sin(degrees);
+  }
+  self.rotate = function(degrees) {
+    rotateVertex(self.vertices[0],degrees);
+    rotateVertex(self.vertices[1],degrees);
+    rotateVertex(self.vertices[2],degrees);
+  }
 }
 function Tangram() {
   var self = this;
@@ -114,6 +125,7 @@ function Tangram() {
     theta = 0.0,
     thetaLoc;
   self.shapes = [];
+  self.dragingShape = null;
   var setup = function() {
     canvas = document.getElementById("canvas");
     gl = WebGLUtils.setupWebGL(canvas);
@@ -140,6 +152,9 @@ function Tangram() {
     // console.log(mousePositionToPoint(event.offsetX,event.offsetY));
     var point = mousePositionToPoint(event.offsetX,event.offsetY);
     // console.log(point);
+    if (self.dragingShape) {
+      self.dragingShape.centerAtPoint(point[0],point[1]);
+    }
     // self.square.centerAtPoint(point[0],point[1]);
     // self.largeTriangle1.centerAtPoint(point[0],point[1])
   }
@@ -149,16 +164,32 @@ function Tangram() {
   $(canvas).mousedown(function(event) {
     onMouseDown(event);
   })
+  $(canvas).mouseup(function(event) {
+    onMouseUp();
+  });
   var onMouseDown = function(event) {
     var point = mousePositionToPoint(event.offsetX,event.offsetY);
-    console.log(point);
+    // console.log(point);
     // console.log(self.square.isInside(point[0],point[1]));
-    console.log(self.largeTriangle1.isInside(point[0],point[1]));
+    // console.log(self.largeTriangle1.isInside(point[0],point[1]));
+    // examine each shape
+    // the first shape which is being clicked gets set as dragingShape
+    if (self.square.isInside(point[0],point[1])) {
+      self.dragingShape = self.square;
+    }
+    else if (self.largeTriangle1.isInside(point[0],point[1])) {
+      self.dragingShape = self.largeTriangle1;
+    }
+  }
+  var onMouseUp=function() {
+    // on mouse up, dragging shape becomes null
+    self.dragingShape = null;
   }
   // called every frame
   var render = function() {
     gl.clear(gl.COLOR_BUFFER_BIT);
-    // theta+=0.1;
+    theta+=0.0001;
+    self.largeTriangle1.rotate(theta);
     // gl.uniform1f(thetaLoc,theta);
     self.largeTriangle1.loadIntoBuffer(gl);
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
