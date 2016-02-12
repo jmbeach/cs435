@@ -13,6 +13,13 @@ function Square(options) {
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
     gl.bufferData(gl.ARRAY_BUFFER,flatten(self.vertices),gl.STATIC_DRAW);
   }
+  self.centerAtPoint= function (x,y) {
+    console.log(x + " and " +y)
+    self.vertices[0][0] = -1.0 * self.size + x;
+    self.vertices[1][0] = -1.0 * self.size + x;
+    self.vertices[2][0] = 1.0 * self.size + x;
+    self.vertices[3][0] = 1.0 * self.size + x;
+  }
 }
 function RightTriangle(options) {
   var self = this;
@@ -41,7 +48,7 @@ function Tangram() {
     gl = WebGLUtils.setupWebGL(canvas);
     // configure WebGL
     gl.viewport(0,0,canvas.width,canvas.height);
-    gl.clearColor(1.0,1.0,1.0,1.0);
+    gl.clearColor(0.5,1.0,1.0,1.0);
     // load shaders
     var program = initShaders(gl,"vertex-shader","fragment-shader");
     gl.useProgram(program);
@@ -54,9 +61,22 @@ function Tangram() {
     gl.enableVertexAttribArray(vPosition);
   }
   setup();
+  var mousePositionToPoint = function(x,y) {
+    return vec2((x-(canvas.width/2))/(canvas.width/2),
+      (y-(canvas.height/2))/(canvas.height/2));
+  }
+  var onMouseMove =function(event) {
+    // console.log(mousePositionToPoint(event.offsetX,event.offsetY));
+    var point = mousePositionToPoint(event.offsetX,event.offsetY);
+    console.log(point);
+    self.square.centerAtPoint(point[0],point[1]);
+  }
+  $(canvas).mousemove(function(event) {
+    onMouseMove(event);
+  });
   // called every frame
   var render = function() {
-    // gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT);
     // theta+=0.1;
     // gl.uniform1f(thetaLoc,theta);
     self.largeTriangle1.loadIntoBuffer(gl);
