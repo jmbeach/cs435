@@ -105,6 +105,21 @@ function Square(options) {
     self.centerAtPoint(currentCenter[0],currentCenter[1]);
   }
 }
+function Parallelogram(options) {
+  var self = this;
+  self.size = options.size;
+  self.vertices = [
+    vec2(-0.6*self.size,1.0*self.size),
+    vec2(-1.0*self.size,-1.0*self.size),
+    vec2(1.0*self.size,1.0*self.size),
+    vec2(0.6*self.size,-1.0*self.size),
+  ]
+  self.loadIntoBuffer = function(gl) {
+    var bufferId = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
+    gl.bufferData(gl.ARRAY_BUFFER,flatten(self.vertices),gl.STATIC_DRAW);
+  }
+}
 function RightTriangle(options) {
   var self = this;
   self.size = options.size;
@@ -202,7 +217,14 @@ function Tangram() {
     self.largeTriangle2.centerAtPoint(-0.644,-0.28);
     self.square = new Square({size:0.25});
     self.square.rotate(45);
-    self.square.centerAtPoint(-0.288,0.08)
+    self.square.centerAtPoint(-0.284,0.076)
+    self.smallTriangle1 = new RightTriangle({size:0.25});
+    self.smallTriangle1.rotate(45);
+    self.smallTriangle1.centerAtPoint(-0.64,0.256);
+    self.smallTriangle2 = new RightTriangle({size:0.25});
+    self.smallTriangle2.rotate(-45);
+    self.smallTriangle2.centerAtPoint(-0.104,-0.284);
+    self.parallelogram = new Parallelogram({size:0.25});
     // associate shader variables with buffer
     thetaLoc = gl.getUniformLocation(program,"theta");
     vPosition = gl.getAttribLocation(program, "vPosition");
@@ -244,6 +266,12 @@ function Tangram() {
     else if (self.largeTriangle2.isInside(point[0],point[1])) {
       shapeToRotate = self.largeTriangle2;
     }
+    else if (self.smallTriangle1.isInside(point[0],point[1])) {
+      shapeToRotate = self.smallTriangle1;
+    }
+    else if (self.smallTriangle2.isInside(point[0],point[1])) {
+      shapeToRotate = self.smallTriangle2;
+    }
     if (!shapeToRotate) {
       return;
     }
@@ -271,6 +299,12 @@ function Tangram() {
     else if (self.largeTriangle2.isInside(point[0],point[1])) {
       self.dragingShape = self.largeTriangle2;
     }
+    else if (self.smallTriangle1.isInside(point[0],point[1])) {
+      self.dragingShape = self.smallTriangle1;
+    }
+    else if (self.smallTriangle2.isInside(point[0],point[1])) {
+      self.dragingShape = self.smallTriangle2;
+    }
   }
   var onMouseUp=function() {
     // on mouse up, dragging shape becomes null
@@ -289,7 +323,16 @@ function Tangram() {
     self.largeTriangle2.loadIntoBuffer(gl);
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP,0,3);
+    self.smallTriangle1.loadIntoBuffer(gl);
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,3);
+    self.smallTriangle2.loadIntoBuffer(gl);
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,3);
     self.square.loadIntoBuffer(gl);
+    gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+    self.parallelogram.loadIntoBuffer(gl);
     gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
     // gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
