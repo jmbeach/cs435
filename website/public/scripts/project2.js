@@ -1,3 +1,22 @@
+function BoundingBox(vertex1,vertex2) {
+  var self = this;
+  if (vertex1[0] < vertex2[0]) {
+    self.left = vertex1[0];
+    self.right = vertex2[0];
+  }
+  else {
+    self.left = vertex2[0];
+    self.right = vertex1[0];
+  }
+  if (vertex1[1] < vertex2[1]) {
+    self.bottom = vertex1[1];
+    self.top = vertex2[1];
+  }
+  else {
+    self.bottom = vertex2[1];
+    self.top = vertex1[1];
+  }
+}
 function Vector2(point1,point2) {
   var self = this;
   self.x = point2[0] - point1[0];
@@ -68,21 +87,32 @@ function Square(options) {
     var x = (maxPoint(0)+ minPoint(0))/2;
     return vec2(x,y);
   }
+  var bounds = function() {
+    var asList = [];
+    asList.push(new BoundingBox(self.vertices[0],self.vertices[1]));
+    asList.push(new BoundingBox(self.vertices[1],self.vertices[2]));
+    asList.push(new BoundingBox(self.vertices[2],self.vertices[3]));
+    asList.push(new BoundingBox(self.vertices[3],self.vertices[0]));
+    return asList;
+  }
+  // Inspired by blog post http://www.emanueleferonato.com/2012/03/09/algorithm-to-determine-if-a-point-is-inside-a-square-with-mathematics-no-hit-test-involved/
+  var triangleArea = function(vertex1,vertex2,vertex3) {
+    return (
+      vertex3[0]*vertex2[1]-vertex2[0]*vertex3[1])-
+      (vertex3[0]*vertex1[1]-vertex1[0]*vertex3[1]) +
+      (vertex2[0]*vertex1[1]-vertex1[0]*vertex2[1]);
+  }
   self.isInside = function(x,y) {
-    // if it is not too far left
-    if (x >= minPoint(0)) {
-      // if it is not too far right
-      if (x <= maxPoint(0)) {
-        // if it is not too high
-        if (y >= minPoint(1)) {
-          // if it is not too low
-          if (y <= maxPoint(1)) {
-            return true;
-          }
-        }
-      }
+    var point = vec2(x,y);
+    var a1 = triangleArea(self.vertices[0],self.vertices[1],point);
+    var a2 = triangleArea(self.vertices[1],self.vertices[2],point);
+    var a3 = triangleArea(self.vertices[2],self.vertices[3],point);
+    var a4 = triangleArea(self.vertices[3],self.vertices[1],point);
+    if (a1>0.2||a2>0.2||a3>0.2||a4>0.2)
+    {
+      return false;
     }
-    return false;
+    return true;
   }
   var rotateVertex = function(vertex, radians) {
     var tempX = vertex[0];
