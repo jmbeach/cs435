@@ -1,0 +1,45 @@
+<script type="text/javascript" src="./common/webgl-utils.js"></script>
+<script type="text/javascript" src="./common/initShaders.js"></script>
+<script type="text/javascript" src="./common/jquery.min.js"></script>
+<script type="text/javascript" src="./common/jquery-ui.min.js"></script>
+<script type="text/javascript" src="./common/bootstrap.min.js"></script>
+<script type="text/javascript" src="./common/MV.js"></script>
+<script type="text/javascript" src="./project2.js"></script>
+
+<div class="col-md-12">
+	<div class="row">
+		<div class="col-md-6">
+			<canvas id="canvas" width="500px" height="500px"></canvas>
+		</div>
+	</div>
+  <script id="vertex-shader" type="x-shader/x-vertex">
+  attribute vec4 vPosition;
+  uniform float theta;
+
+  void
+  main()
+  {
+      float s = sin( theta );
+      float c = cos( theta );
+
+      gl_Position.x = -s * vPosition.y + c * vPosition.x;
+      gl_Position.y =  s * vPosition.x + c * vPosition.y;
+      gl_Position.z = 0.0;
+      gl_Position.w = 1.0;
+  }
+  </script>
+  <script id="fragment-shader" type="x-shader/x-fragment">
+  precision mediump float;
+
+  void
+  main()
+  {
+      gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+  }
+  </script>
+	<script type="text/javascript">
+		$(function() {
+	    var tangram = new Tangram();
+		});
+	</script>
+</div>
