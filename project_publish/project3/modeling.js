@@ -1,6 +1,3 @@
-// CS 435, project 3, Jared Beach
-// Program contains classes for representing words with
-// cylinders
 function Square(opts) {
   var self = this;
   self.size = opts.size;

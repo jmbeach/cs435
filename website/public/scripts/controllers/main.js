@@ -60,6 +60,18 @@ master.config(['$urlMatcherFactoryProvider', '$routeProvider', '$locationProvide
             }
           }
         )
+        .state(
+          "Project4", {
+            url: "/project4",
+            views: {
+              "master": {
+                templateUrl: 'views/spotlight.html',
+                controller: "main",
+                controllerAs: "main"
+              }
+            }
+          }
+        )
         .state("Limited Movement", {
           url: "/limited",
           views: {

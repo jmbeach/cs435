@@ -1,0 +1,136 @@
+<head>
+	<script type="text/javascript" src="./common/webgl-utils.js"></script>
+	<script type="text/javascript" src="./common/initShaders.js"></script>
+	<script type="text/javascript" src="./common/jquery.min.js"></script>
+	<script type="text/javascript" src="./common/MV.js"></script>
+	<script type="text/javascript" src="./modeling.js"></script>
+	<title>CS 435 - Jared Beach - Project 3</title>
+</head>
+<body>
+	<div style="padding:10px">
+		<div>
+				<label>Move left </label>
+				<input id="rotateLeft" type="button" value="<"/>
+		</div>
+		<div>
+			<label>Move right </label>
+			<input id="rotateRight" type="button" value=">"/>
+		</div>
+		<div>
+			<label>Move up </label>
+			<input id="rotateUp" type="button" value="^"/>
+		</div>
+		<div>
+			<label>Move down </label>
+			<input id="rotateDown" type="button" value="v"/>
+		</div>
+		<div class="row" style="padding-top:15px;">
+			<div class="col-md-6">
+				<canvas id="gl-canvas" width="500px" height="500px"></canvas>
+			</div>
+		</div>
+		<p id="paragraph">
+			The quick brown fox jumps over the lazy dog
+		</p>
+
+		<script id="vertex-shader" type="x-shader/x-vertex">
+
+		attribute  vec4 vPosition;
+		attribute  vec4 vColor;
+		varying vec4 fColor;
+
+		uniform vec3 theta;
+
+		void main()
+		{
+		    // Compute the sines and cosines of theta for each of
+		    //   the three axes in one computation.
+		    vec3 angles = radians( theta );
+		    vec3 c = cos( angles );
+		    vec3 s = sin( angles );
+
+		    // Remeber: thse matrices are column-major
+		    mat4 rx = mat4( 1.0,  0.0,  0.0, 0.0,
+				    0.0,  c.x,  s.x, 0.0,
+				    0.0, -s.x,  c.x, 0.0,
+				    0.0,  0.0,  0.0, 1.0 );
+
+		    mat4 ry = mat4( c.y, 0.0, -s.y, 0.0,
+				    0.0, 1.0,  0.0, 0.0,
+				    s.y, 0.0,  c.y, 0.0,
+				    0.0, 0.0,  0.0, 1.0 );
+
+		    mat4 rz = mat4( c.z, -s.z, 0.0, 0.0,
+				    s.z,  c.z, 0.0, 0.0,
+				    0.0,  0.0, 1.0, 0.0,
+				    0.0,  0.0, 0.0, 1.0 );
+
+
+		    fColor = vColor;
+		    gl_Position = rz * ry * rx * vPosition;
+		}
+		</script>
+
+		<script id="fragment-shader" type="x-shader/x-fragment">
+
+		precision mediump float;
+
+		varying vec4 fColor;
+
+		void
+		main()
+		{
+		    gl_FragColor = fColor;
+		}
+		</script>
+
+		<script type="x-shader/x-vertex" id="Cylinder-vertex-shader">
+		attribute vec4  vPosition;
+
+		uniform mat4  MV;
+		uniform mat4  P;
+
+		void main()
+		{
+			gl_PointSize = 3.0;  // In case we want to render as points
+			gl_Position = P * MV * vPosition;
+		}
+		</script>
+
+		<script type="x-shader/x-fragment" id="Cylinder-fragment-shader">
+		precision highp float;
+
+		void main()
+		{
+			gl_FragColor = vec4(0, 0, 1, 1.0);
+		}
+		</script>
+		<script type="x-shader/x-fragment" id="Holder-fragment-shader">
+		precision highp float;
+
+		void main()
+		{
+			gl_FragColor = vec4(1, 1, 0, 1.0);
+		}
+		</script>
+		<script type="text/javascript">
+	    var model = new Modeling();
+			$("#rotateLeft").click(function() {
+				model.camera.rotateY(-5);
+				model.topCamera.rotateZ(5);
+			});
+			$("#rotateRight").click(function() {
+				model.camera.rotateY(5);
+				model.topCamera.rotateZ(-5);
+			});
+			$("#rotateUp").click(function() {
+				model.camera.rotateX(-5);
+				model.topCamera.rotateX(-5);
+			});
+			$("#rotateDown").click(function() {
+				model.camera.rotateX(5);
+				model.topCamera.rotateX(5);
+			})
+		</script>
+	</div>
+</body>

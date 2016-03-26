@@ -1,0 +1,71 @@
+<script type="text/javascript" src="/scripts/spotlight.js"></script>
+<div style="padding:10px">
+	<div class="row" styl="padding-top:15px">
+		<input id="camNegRotate" value="rotate left" type="button"/>
+		<input id="camPosRotate" value="rotate right" type="button"/>
+	</div>
+  <div class="row" style="padding-top:15px;">
+		<div class="col-md-6">
+			<canvas id="gl-canvas" width="500px" height="500px"></canvas>
+		</div>
+	</div>
+
+	<script id="fragment-shader" type="x-shader/x-fragment">
+	precision mediump float;
+	uniform float uShininess;
+	uniform vec3 uLightDirection;
+	uniform vec4 uLightAmbient;
+	uniform vec4 uLightDiffuse;
+	uniform vec4 uLightSpecular;
+	uniform vec4 uMaterialAmbient;
+	uniform vec4 uMaterialDiffuse;
+	uniform vec4 uMaterialSpecular;
+	varying vec3 vNormal;
+	varying vec3 vEyeVec;
+	void main(void){
+		vec3 L = normalize(uLightDirection);
+		vec3 N = normalize(vNormal);
+		float lambertTerm = dot(N,-L);
+		vec4 Ia = uLightAmbient*uMaterialAmbient;
+		vec4 Id = vec4(0.0,0.0,0.0,1.0);
+		vec4 Is = vec4(0.0,0.0,0.0,1.0);
+		if(lambertTerm > 0.0) {
+			Id = uLightDiffuse * uMaterialDiffuse *lambertTerm;
+			vec3 E = normalize(vEyeVec);
+			vec3 R = reflect(L, N);
+			float specular = pow(max(dot(R,E),0.0),uShininess);
+			Is = uLightSpecular * uMaterialSpecular *specular;
+		}
+		vec4 finalColor = Ia + Id + Is;
+		finalColor.a = 1.0;
+		gl_FragColor = finalColor;
+	}
+	</script>
+
+	<script type="x-shader/x-vertex" id="vertex-shader">
+	uniform mat4  MV;
+	uniform mat4  P;
+	uniform mat4	N;
+	attribute vec3 aVertexPosition;
+	attribute vec3 aVertexNormal;
+	varying vec3 vNormal;
+	varying vec3 vEyeVec;
+	void main()
+	{
+		vec4 vertex = MV*vec4(aVertexPosition, 1.0);
+		vNormal = vec3(N * vec4(aVertexNormal,1.0));
+		vEyeVec = -vec3(vertex.xyz);
+		gl_Position = P * MV * vec4(aVertexPosition,1.0);
+	}
+	</script>
+
+	<script type="text/javascript">
+    var scene = new SpotlightScene();
+		$("#camNegRotate").click(function() {
+			scene.camera.rotateY(-1);
+		});
+		$("#camPosRotate").click(function() {
+			scene.camera.rotateY(1);
+		});
+	</script>
+</div>
