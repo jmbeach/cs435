@@ -1,11 +1,7 @@
 {
   "ecmaVersion": 6,
-  "libs": [
-    "browser",
-    "jquery"
-  ],
+  "libs": [],
   "loadEagerly": [
-    "bower_components/webgl-utils.js/webgl-utils.js",
-    "bower_components/gl-matrix/dist/gl-matrix-min.js"
+    "website/public/scripts/common/*"
   ]
 }

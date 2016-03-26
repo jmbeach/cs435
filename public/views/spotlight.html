@@ -1,0 +1,45 @@
+<script type="text/javascript" src="/scripts/common/utils.js"></script>
+<script type="text/javascript" src="/scripts/spotlight.js"></script>
+<div style="padding:10px">
+	<div class="row" styl="padding-top:15px">
+		<input id="camNegRotate" value="rotate left" type="button"/>
+		<input id="camPosRotate" value="rotate right" type="button"/>
+	</div>
+  <div class="row" style="padding-top:15px;">
+		<div class="col-md-6">
+			<canvas id="gl-canvas" width="500px" height="500px"></canvas>
+		</div>
+	</div>
+
+	<script id="fragment-shader" type="x-shader/x-fragment">
+	precision highp float;
+
+	void main()
+	{
+		gl_FragColor = vec4(0, 0, 1, 1.0);
+	}
+	</script>
+
+	<script type="x-shader/x-vertex" id="vertex-shader">
+	attribute vec4  vPosition;
+
+	uniform mat4  MV;
+	uniform mat4  P;
+
+	void main()
+	{
+		gl_PointSize = 3.0;  // In case we want to render as points
+		gl_Position = P * MV * vPosition;
+	}
+	</script>
+
+	<script type="text/javascript">
+    var scene = new SpotlightScene();
+		$("#camNegRotate").click(function() {
+			scene.camera.rotateY(-1);
+		});
+		$("#camPosRotate").click(function() {
+			scene.camera.rotateY(1);
+		});
+	</script>
+</div>
